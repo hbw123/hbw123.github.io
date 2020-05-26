@@ -1,0 +1,363 @@
+I"�4<h4 id="大数据课程第一天">大数据课程第一天</h4>
+
+<hr />
+
+<h5 id="linux总结">linux总结</h5>
+
+<ol>
+  <li>
+    <p>linux相关的网络操作的命令</p>
+
+    <ol>
+      <li>
+        <p>SecurityCRT技巧
+ <img src="E:\AI129第三阶段\day1\笔记\大数据课程第一天.assets\1537164562048.png" alt="1537164562048" /></p>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>![1537164598157](E:\AI129第三阶段\day1\笔记\大数据课程第一天.assets\1537164598157.png)
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>查看linux IP地址方式</p>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ifconfig 
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>临时设置服务器的IP</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ifconfig eth0 192.168.19.10
+</code></pre></div>        </div>
+
+        <p><img src="E:\AI129第三阶段\day1\笔记\大数据课程第一天.assets\1537164634419.png" alt="1537164634419" /></p>
+      </li>
+      <li>
+        <p>永久设置IP地址</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vi /etc/sysconfig/network-script/ifcfg-eth0 
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>关闭防火墙</p>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> servie iptables stop #临时关闭防火墙  当前关闭 
+ service iptables status #查看防火墙的状态  
+ chkconfig iptables off #永久关闭防火墙  下一次从新启动时 也是关闭
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>关闭Selinux [centos中的一个安全套件]</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> vi /etc/selinux/config
+ SELINUX=disabled
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>修改linux服务器的主机名</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> vi /etc/sysconfig/network
+ HOSTNAME = hadoop.baizhiedu.com
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>修改主机映射</p>
+
+        <ol>
+          <li>
+            <p>window</p>
+
+            <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Windows\System32\drivers\etc
+hosts
+192.168.19.10 hadoop.baizhiedu.com
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>linux</p>
+          </li>
+        </ol>
+
+        <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>```
+vi /etc/hosts
+192.168.19.10 hadoop.baizhiedu.com
+```
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>设置双网卡</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p"> 1.</span> 在实战情况下 设置双网卡 一个块内部使用 一块上外网
+<span class="p"> 2.</span> VMWare虚拟机 NAT模式 
+    虚拟机会共享宿主机的IP，并搭建一个虚拟网络。但是其他非宿主机访问不到。
+<span class="p"> 3.</span> VMWare虚拟机 桥接模式
+    虚拟机会和宿主机享受同样的独立IP，在外界看来，虚拟机就是一个独立的机器
+<span class="p"> 4.</span> VMWare 创建一个新的网卡 ，选择桥接
+<span class="p"> 5.</span> /etc/sysconfig/network-script/ifcfg-eth1
+    DEVICE=eth1
+    TYPE=Ethernet
+    ONBOOT=yes
+    NM_CONTROLLED=yes
+    BOOTPROTO=dhcp
+<span class="p"> 6.</span> 虚拟网络编辑器中的对于桥接设置 可以上外网的网卡
+<span class="p"> 7.</span> service network restart
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>集群（Cluster）</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> clone机器mac地址 
+   rm -rf /etc/udev/rules.d/70-persistence.rules
+<span class="p">2.</span> 把clone机器  修改静态ip 
+   vi /etc/sysconfig/network-script/ifcfg-eth0
+<span class="p">3.</span> 修改主机名
+   vi /etc/sysconfig/network
+<span class="p">4.</span> 修改hosts文件
+   vi /etc/hosts
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>集群中文件的复制</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> scp 本机文件名字 root@ip:/新机器的位置
+ scp /etc/hosts root@192.168.19.11:/etc
+ scp -r /etc/文件夹 root@192.168.19.11:/etc
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>Linux操作系统安装软件</p>
+
+        <ol>
+          <li>
+            <p>rpm (红帽子)</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> rpm -ivh xxxx
+ rpm -qa
+ rpm -e 
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>yum (红帽子)</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> 不需要安装依赖
+ yum -y install xxxx
+            
+ yum安装的提速
+ 设置yum源 
+<span class="p"> 1.</span> mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+<span class="p"> 2.</span> 下载CentOS6-Base-163.repo【资料】 上传 /etc/yum.repos.d/
+<span class="p"> 3.</span> yum clean all
+    yum makecache
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>tar直接解压缩</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> tar -zxvf xxxx.tar.gz
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>源码编译安装</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p"> 1.</span> 解压缩tar
+ tar -zxvf xxx.tar.gz
+<span class="p"> 2.</span> ./configure [可省略]
+<span class="p"> 3.</span> make xxxx
+<span class="p"> 4.</span> make install xxxx
+</code></pre></div>            </div>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <p>JDK安装</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p"> 1.</span> 官方网站下载JDK安装版
+    RPM
+<span class="p"> 2.</span> rpm -ive xxxx.rpm
+<span class="p"> 3.</span> 默认安装目录
+    /usr/java/jdk1.7.0_71
+<span class="p"> 4.</span> 配置jdk环境变量
+    vi ~/.bash_profile
+ 	JAVA_HOME=/usr/java/jdk1.7.0_71
+ 	CLASSPATH=.
+ 	PATH=$JAVA_HOME/bin:$PATH:$HOME/bin
+        
+ 	export JAVA_HOME
+ 	export CLASSPATH
+ 	export PATH
+<span class="p"> 5.</span> source .bash_profile
+<span class="p"> 6.</span> javac -version 验证安装是否成功
+    javac 1.7.0_71
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>NotePad++ 访问远端服务的文件</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> NppFTP插件 访问远端linux服务器上的目录及文件
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<h5 id="大数据技术">大数据技术</h5>
+
+<hr />
+
+<ol>
+  <li>
+    <p>什么是大数据
+数据量级很大的应用处理。TB级 ，日数据增长GB级</p>
+
+    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>K -- M---- G ---- T ----PB  ---- EB  ---ZB  1024
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>大数据的特点 4V</p>
+
+    <ol>
+      <li>
+        <p>Volume (大量) 
+数据量很大，至少是TB或者日均增加GB级</p>
+      </li>
+      <li>
+        <p>Variety (多样) 
+结构化数据</p>
+
+        <p>​      数据库中的数据 
+半结构化数据
+​       JSON<br />
+​       XML</p>
+
+        <p>非结构化数据
+​      音频
+​      视频</p>
+      </li>
+      <li>
+        <p>Velocity（快速） 
+处理数据 快</p>
+      </li>
+      <li>
+        <p>Value （价值）</p>
+
+        <p>海量没有价值的数据中，分析出有价值的内容。</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>大数据处理过程中涉及的问题</p>
+
+    <ol>
+      <li>怎么存
+<img src="E:\AI129第三阶段\day1\笔记\大数据课程第一天.assets\1537172066774.png" alt="1537172066774" /></li>
+      <li>怎么运算（处理）</li>
+    </ol>
+
+    <p>​       <img src="E:\AI129第三阶段\day1\笔记\大数据课程第一天.assets\1537172748203.png" alt="1537172748203" /></p>
+  </li>
+  <li>
+    <p>大数据技术方案（Hadoop）</p>
+
+    <ol>
+      <li>Google 3篇论文   GFS  MapReduce BigTable</li>
+      <li>Doug Cutting 写 Hadoop 
+HDFS — GFS
+MapReduce —- MapReduce
+HBase  —- BigTable</li>
+      <li>Hadoop 贡献 Apach组织</li>
+      <li>Hadoop 版本
+        <ol>
+          <li>apache组织的 开源版  互联网</li>
+          <li>cloudera CDH
+雇佣 Doug Cutting  4000美金</li>
+          <li>Hortonworks
+最初apache组织 hadoop的开发人员 创立公司 12000美元 （10个）</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>搭建Hadoop的伪分布式集群</p>
+
+    <ol>
+      <li>
+        <p>准备工作</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 设置网络、防火墙、selinux、主机名、主机名的映射
+<span class="p">2.</span> 安装JDK 
+<span class="p">3.</span> 获得hadoop安装版，并加压缩
+   /opt/module  放置所有需要的相关软件
+   /opt/install 安装相关软件
+   tar -zxvf hadoopxxxx.tar.gz -C  /opt/install
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>配置hadoop相关配置文件</p>
+
+        <ol>
+          <li>
+            <p>HADOOP_HOME/etc/hadoop/hadoop-env.sh</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export JAVA_HOME=/usr/java/jdk1.7.0_71
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>HADOOP_HOME/etc/hadoop/core-site.xml</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;property&gt;</span>		
+    <span class="nt">&lt;name&gt;</span>fs.default.name<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;value&gt;</span>hdfs://hadoop.baizhiedu.com:8020<span class="nt">&lt;/value&gt;</span>
+  <span class="nt">&lt;/property&gt;</span>
+  <span class="nt">&lt;property&gt;</span>
+	<span class="nt">&lt;name&gt;</span>hadoop.tmp.dir<span class="nt">&lt;/name&gt;</span>
+	<span class="nt">&lt;value&gt;</span>/opt/install/hadoop-2.5.2/data/tmp<span class="nt">&lt;/value&gt;</span>
+  <span class="nt">&lt;/property&gt;</span>
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>HADOOP_HOME/etc/hadoop/hdfs-site.xml</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nt">&lt;property&gt;</span>		
+     <span class="nt">&lt;name&gt;</span>dfs.replication<span class="nt">&lt;/name&gt;</span>
+     <span class="nt">&lt;value&gt;</span>1<span class="nt">&lt;/value&gt;</span>
+  <span class="nt">&lt;/property&gt;</span>
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>HADOOP_HOME/etc/hadoop/yarn-site.xml</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;property&gt;</span>
+       <span class="nt">&lt;name&gt;</span>yarn.nodemanager.aux-services<span class="nt">&lt;/name&gt;</span>
+       <span class="nt">&lt;value&gt;</span>mapreduce_shuffle<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+</code></pre></div>            </div>
+          </li>
+          <li>
+            <p>HADOOP_HOME/etc/hadoop/mapred-site.xml</p>
+
+            <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh"># cp mapred-site.xml.template mapred-site.xml</span>
+<span class="nt">&lt;property&gt;</span>	 	        		
+	<span class="nt">&lt;name&gt;</span>mapreduce.framework.name<span class="nt">&lt;/name&gt;</span>
+    <span class="nt">&lt;value&gt;</span>yarn<span class="nt">&lt;/value&gt;</span>
+<span class="nt">&lt;/property&gt;</span>
+</code></pre></div>            </div>
+          </li>
+        </ol>
+      </li>
+      <li>
+        <p>启动hadoop的伪分布式集群</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 格式化Hadoop集群 第一次启动hadoop集群时 需要做
+   bin/hdfs namenode -format
+<span class="p">2.</span> 启动相关进程
+   sbin/hadoop-daemon.sh start namenode
+   sbin/hadoop-daemon.sh start datanode
+   sbin/yarn-daemon.sh start resourcemanager
+   sbin/yarn-daemon.sh start nodemanager
+<span class="p"> 3.</span> jps查看进程
+<span class="p"> 4.</span> 通过网络访问
+    HDFS   http://hadoop.baizhiedu.com:50070
+    yarn   http://hadoop.baizhiedu.com:8088
+</code></pre></div>        </div>
+      </li>
+    </ol>
+  </li>
+</ol>
+:ET

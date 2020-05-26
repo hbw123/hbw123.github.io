@@ -2,7 +2,7 @@
 title: HBW Blog
 SEOTitle: 韩哥的博客 | HBW Blog
 header-img: img/post-bg-desk.jpg
-email: qiubaiying@gmail.com
+email: hanbowen@gmail.com
 description: "Every failure is leading towards success."
 keyword: "Python,GO,JAVA,高薪,副业,HBW, HBW Blog, 韩博文的博客, hanbowen, 韩博文"
 url: "http://hbw123.github.io/"          # your host, for absolute URL
@@ -12,19 +12,18 @@ github_repo: "https://github.com/hbw123/hbw123.github.io.git" # you code reposit
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "Goals determine what you going to be!"
-sidebar-avatar: /img/about-HBW-gentle.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: /img/zyx.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
 # SNS settings
 RSS: false
-# weibo_username:     qiubaiying
-zhihu_username:     qiubaiying
-github_username:    qiubaiying
+# weibo_username:     hanbowen
+zhihu_username:     hanbowen
+github_username:    hanbowen
 facebook_username:  baiying.qiu.7
 jianshu_username:   e71990ada2fd
-#twitter_username:   qiubaiying
-
+#twitter_username:   hanbowen
 
 
 
@@ -41,8 +40,7 @@ anchorjs: true                          # if you want to customize anchor. check
 # from PR#40, to support local preview for Jekyll 3.0
 gems: [jekyll-paginate]
 
-
-
+plugins: [jekyll-paginate]
 
 # Markdown settings
 # replace redcarpet to kramdown,
@@ -57,16 +55,16 @@ kramdown:
 
 # 评论系统
 # Disqus（https://disqus.com/）
-# disqus_username: qiubaiying
+# disqus_username: hanbowen
 
 # Gitalk
 gitalk:
   enable: true    #是否开启Gitalk评论
   clientID: f2c84e7629bb1446c1a4                            #生成的clientID
   clientSecret: ca6d6139d1e1b8c43f8b2e19492ddcac8b322d0d    #生成的clientSecret
-  repo: qiubaiying.github.io    #仓库名称
-  owner: qiubaiying    #github用户名
-  admin: qiubaiying
+  repo: hbw123.github.io    #仓库名称
+  owner: hbw123   #github用户名
+  admin: hanbowen
   distractionFreeMode: true #是否启用类似FB的阴影遮罩
 
 
@@ -78,7 +76,7 @@ ba_track_id: b50bf2b12b5338a1845e33832976fd68
 
 # Google Analytics
 ga_track_id: 'UA-90855596-1'            # Format: UA-xxxxxx-xx
-ga_domain: qiubaiying.top               # 默认的是 auto, 这里我是自定义了的域名，你如果没有自己的域名，需要改成auto
+ga_domain: auto               # 默认的是 auto, 这里我是自定义了的域名，你如果没有自己的域名，需要改成auto
 
 
 
