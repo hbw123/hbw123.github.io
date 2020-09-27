@@ -1,0 +1,102 @@
+I"�<h3 id="seaborn简介">Seaborn简介</h3>
+
+<p>Seaborn是基于matplotlib的图形可视化python包。它提供了一种高度交互式界面，便于用户能够做出各种有吸引力的统计图表。</p>
+
+<p>Seaborn是在matplotlib的基础上进行了更高级的API封装，从而使得作图更加容易，在大多数情况下使用seaborn能做出很具有吸引力的图，而使用matplotlib就能制作具有更多特色的图。应该把Seaborn视为matplotlib的补充，而不是替代物。同时它能高度兼容numpy与pandas数据结构以及scipy与statsmodels等统计模式</p>
+
+<h3 id="安装">安装</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pip</span> <span class="n">install</span> <span class="n">seaborn</span> 
+</code></pre></div></div>
+
+<h3 id="用法">用法</h3>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> sns.图名(x='X轴 列名', y='Y轴 列名', hue='分组绘图参数', data=原始数据df对象)
+</code></pre></div></div>
+
+<h3 id="seaborn架构">Seaborn架构</h3>
+
+<ol>
+  <li>
+    <p><strong>风格管理</strong></p>
+
+    <ul>
+      <li>
+        <p>绘图风格设置</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> {darkgrid, whitegrid, dark, white, ticks}
+<span class="p">2.</span> sns.set_style('ticks')
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>颜色风格设置</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> {deep, muted, pastel, dark, bright, colorblind}
+<span class="p">2.</span> color_palette=sns.color_palette('dark')
+<span class="p">3.</span> sns.set_palette(color_palette)
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>绘图方法</strong></p>
+
+    <ul>
+      <li>
+        <p>数据集的分布可视化</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 单变量分析
+	sns.distplot(df.result)  直方图和拟合曲线
+<span class="p">2.</span> 多变量分析
+	sns.scatterplot(x='x',y='y',data=X) 散点图
+	sns.pairplot(X) 两两特征对比图
+	sns.kdeplot(X) 等高线图
+	sns.stripplot(x='x',y='y',data=df) 特征值分布图 有重叠
+	sns.stripplot(x='x',y='y',data=df,jitter=True)特征值分布图 无重叠
+	sns.swarmplot(x='x',y='y',data=df)特征值分布图 树状
+	盒图
+<span class="p">	1.</span> IQR：统计学概念 四分位距  指的是四分之一到四分之三的距离
+<span class="p">	2.</span> 离群点：一个值大于四分之三位+1.5IQR或者小于四分之一-1.5IQR
+	sns.boxplot(x='x',y='y',data=df)
+	sns.violinplot(x='x',y='y',data=df)  小提琴图
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>分类数据可视化</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> sns.barplot(data=df) 条形图
+<span class="p">2.</span> sns.pairplot(x='x',y='y',data=df) 点图
+<span class="p">3.</span> sns.factorplot(x='x',y='y',data=df) 多层面板分类图
+<span class="p">4.</span> sns.countplot() 数量统计图
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>线性关系可视化</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> sns.regplot(x='x',y='y',data=df)  回归分析图
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>结构网格</strong></p>
+
+    <ul>
+      <li>
+        <p>数据识别网格绘图</p>
+
+        <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fg=sns.FacetGrid(df,col='x')
+fg.map(plt.scatter,'y','y')
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <h5 id="热度图">热度图</h5>
+
+    <div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df=np.random.rand(3,3)
+sns.heatmap(df)
+</code></pre></div>    </div>
+  </li>
+</ol>
+:ET

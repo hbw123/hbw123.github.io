@@ -1,0 +1,10 @@
+I"7<h3 id="单向链表">单向链表</h3>
+
+<p>单向链表（<a href="https://baike.baidu.com/item/%E5%8D%95%E9%93%BE%E8%A1%A8/3228368">单链表</a>）是<a href="https://baike.baidu.com/item/%E9%93%BE%E8%A1%A8/9794473">链表</a>的一种，其特点是链表的链接方向是单向的，对链表的访问要通过顺序读取从头部开始；链表是使用<a href="https://baike.baidu.com/item/%E6%8C%87%E9%92%88/2878304">指针</a>进行构造的列表；又称为结点列表，因为链表是由一个个结点组装起来的；其中每个结点都有指针<a href="https://baike.baidu.com/item/%E6%88%90%E5%91%98%E5%8F%98%E9%87%8F/11024994">成员变量</a>指向列表中的下一个结点；</p>
+
+<p>链表是由<a href="https://baike.baidu.com/item/%E7%BB%93%E7%82%B9/9794643">结点</a>构成，head指针指向第一个成为表头结点，而终止于最后一个指向NULL的指针。</p>
+
+<p><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3523074932,1296836746&amp;fm=26&amp;gp=0.jpg" alt="单向链表" /></p>
+
+<h4 id="插入">插入</h4>
+:ET

@@ -1,0 +1,352 @@
+I"��<h3 id="knnk近邻算法">KNN(K近邻)算法</h3>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 赵老师找对象，约会了1000个女生，统计了一些相关数据
+ 结果：
+ 	1：周六日约
+ 	2：平时约
+ 	3：不约
+ 
+ 赵老师希望我们可以帮他写一个程序，他告诉我们这个女生的salary,taobao,tv，我们告诉他这个女生应该什么时候约或者不约(类别)
+ 
+ (48111,9.134528,0.728045) 
+ 
+ 如何判断一个人是好人，还是坏人？
+<span class="p"> 	1.</span> 询问他身边的人
+<span class="p"> 	2.</span> 如果他身边的人好人多，坏人少，认为他是个好人
+<span class="p"> 	3.</span> 反之，是个坏人
+ 物以类聚人以群分，近朱者赤近墨者黑
+</code></pre></div></div>
+
+<p><img src="../img/1582249210092.png" alt="1582249210092" /></p>
+
+<h4 id="思路如何产生">思路如何产生</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 不同类别女生之间有没有区别？  假设有
+<span class="p">2.</span> 如果有区别，区别在哪？  和年龄，长相等有没有关系？没有关系  区别在salary taobao tv
+<span class="p">3.</span> 区别在于特征的值 很难直接找到一个或者多个确定的条件来判断女生的类别
+<span class="p">4.</span> 能不能找到待预测的女生比较接近的人	
+<span class="p">	1.</span> 如何判断两个样本之间的距离  使用欧式距离
+<span class="p">5.</span> 找到距离最近的前k个人  5
+<span class="p">6.</span> 统计前k个人中，出现次数最多的那个类别作为待遇测女生的类别
+</code></pre></div></div>
+
+<p><img src=".../img/1582250795217.png" alt="1582250795217" /></p>
+
+<p>$欧式距离：d=\sqrt{\sum_{i=1}^n(x_i-y_i)^2}$</p>
+
+<h4 id="knn开发思路开发流程">KNN开发思路(开发流程)</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 读取数据，分开特征矩阵和目标向量
+<span class="p">2.</span> 归一化特征矩阵
+<span class="p">3.</span> 计算新样本到所有样本之间的距离  计算方式使用欧式距离
+<span class="p">4.</span> 找到距离新样本最近的前k个样本 k值的选择凭经验 3-15个 最好是奇数
+<span class="p">5.</span> 统计出现次数最多的那个类别 
+<span class="p">6.</span> 将该类别作为新样本的类别输出
+</code></pre></div></div>
+
+<h4 id="归一化">归一化</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 将特征值放缩到一定区间(0-1)，放缩前后，每列特征对于别的特征没有影响
+<span class="p">2.</span> 最大最小值归一化
+</code></pre></div></div>
+
+<p>$最大最小值归一化:x=\frac{x-min}{max-min}$</p>
+
+<h4 id="原版knn实现">原版KNN实现</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># !/usr/bin/python
+# -*- coding: utf-8 -*-
+# @Time    : 2020/2/21 10:27
+# @Author  : hbw
+# @File    : KNN算法.py
+# @Software: PyCharm
+# 1. 读取数据，分开特征矩阵和目标向量
+</span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">r</span><span class="p">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">datas</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">)</span>
+        <span class="n">X</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datas</span><span class="p">[:</span><span class="mi">3</span><span class="p">]])</span>
+        <span class="n">Y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span>
+
+<span class="c1"># 归一化
+</span><span class="k">def</span> <span class="nf">guiyihua</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="c1"># 获取每一列
+</span>    <span class="n">l1</span><span class="p">,</span><span class="n">l2</span><span class="p">,</span><span class="n">l3</span><span class="o">=</span><span class="p">[],[],[]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+        <span class="n">l1</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">l2</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">l3</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="c1"># 获取每列的最大值和最小值
+</span>    <span class="n">max1</span><span class="p">,</span><span class="n">min1</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">l1</span><span class="p">),</span><span class="nb">min</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span>
+    <span class="n">max2</span><span class="p">,</span> <span class="n">min2</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">l2</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span>
+    <span class="n">max3</span><span class="p">,</span> <span class="n">min3</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">l3</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">l3</span><span class="p">)</span>
+    <span class="c1"># 重新赋值每一列
+</span>    <span class="n">new_X</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">l1</span><span class="p">)):</span>
+        <span class="n">new_X</span><span class="p">.</span><span class="n">append</span><span class="p">([(</span><span class="n">l1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">min1</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">max1</span><span class="o">-</span><span class="n">min1</span><span class="p">),(</span><span class="n">l2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">min2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">max2</span><span class="o">-</span><span class="n">min2</span><span class="p">),(</span><span class="n">l3</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">min3</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">max3</span><span class="o">-</span><span class="n">min3</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">new_X</span>
+<span class="c1"># 分类
+</span><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">dis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># 2. 计算新样本到所有样本之间的距离  计算方式使用欧式距离
+</span>    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+        <span class="n">dis</span><span class="p">.</span><span class="n">append</span><span class="p">(((</span><span class="n">xx</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="n">xx</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="c1"># 3. 找到距离新样本最近的前k个样本 k值的选择凭经验 3-15个 最好是奇数
+</span>    <span class="n">new_dis</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dis</span><span class="p">)[:</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">new_dis</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">dis</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+    <span class="c1"># 4. 统计出现次数最多的那个类别
+</span>    <span class="c1"># 5. 将该类别作为新样本的类别输出
+</span>    <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">y</span><span class="p">).</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s">r'E:\人工智能训练营\人工智能\笔记\day2\dating.txt'</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">X</span><span class="o">=</span><span class="n">guiyihua</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">48111</span><span class="p">,</span> <span class="mf">9.134528</span><span class="p">,</span> <span class="mf">0.728045</span><span class="p">]</span>  <span class="c1"># 3
+</span>    <span class="n">train_X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:</span><span class="mi">900</span><span class="p">]</span>
+    <span class="n">test_X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="mi">900</span><span class="p">:]</span>
+    <span class="n">train_Y</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:</span><span class="mi">900</span><span class="p">]</span>
+    <span class="n">test_Y</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="mi">900</span><span class="p">:]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">11</span><span class="p">]:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_X</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">classify</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">y</span><span class="o">==</span><span class="n">test_Y</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">count</span><span class="o">+=</span><span class="mi">1</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">count</span><span class="o">/</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h4 id="原版knn的问题优化思路">原版KNN的问题(优化思路)</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 代码可重用性不高，很差
+<span class="p">	1.</span> 部分代码写死了
+<span class="p">2.</span> 代码不够简洁优雅
+</code></pre></div></div>
+
+<h4 id="优化版knn代码实现">优化版KNN代码实现</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># !/usr/bin/python
+# -*- coding: utf-8 -*-
+# @Time    : 2020/2/21 10:27
+# @Author  : hbw
+# @File    : KNN算法.py
+# @Software: PyCharm
+# 1. 读取数据，分开特征矩阵和目标向量
+</span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">):</span>  <span class="c1"># ,usrcols=[0,2]
+</span>    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">r</span><span class="p">.</span><span class="n">readlines</span><span class="p">():</span>
+            <span class="n">datas</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+            <span class="n">X</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">d</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datas</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="n">Y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span>
+
+
+<span class="c1"># 归一化  1000,3
+</span><span class="k">def</span> <span class="nf">guiyihua</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="n">new_X</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># 列数
+</span>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>  <span class="c1"># 3
+</span>        <span class="c1"># 遍历每一列,获取每列的元素
+</span>        <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">]</span>
+        <span class="c1"># 获取每列最大值和每列最小值
+</span>        <span class="n">max_col</span><span class="p">,</span> <span class="n">min_col</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="c1"># 归一化每列的值
+</span>        <span class="n">new_col</span> <span class="o">=</span> <span class="p">[(</span><span class="n">c</span> <span class="o">-</span> <span class="n">min_col</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_col</span> <span class="o">-</span> <span class="n">min_col</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+        <span class="c1"># len(X[0]),len(new_col)
+</span>        <span class="n">new_X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_col</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[[</span><span class="n">new_X</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_X</span><span class="p">))]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_X</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+
+
+<span class="c1"># 分类
+</span><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="n">dis</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># 2. 计算新样本到所有样本之间的距离  计算方式使用欧式距离
+</span>    <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+        <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+            <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="n">dis</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+    <span class="c1"># 3. 找到距离新样本最近的前k个样本 k值的选择凭经验 3-15个 最好是奇数
+</span>    <span class="c1"># 4. 统计出现次数最多的那个类别
+</span>    <span class="c1"># 5. 将该类别作为新样本的类别输出
+</span>    <span class="k">return</span> <span class="n">Counter</span><span class="p">([</span><span class="n">Y</span><span class="p">[</span><span class="n">dis</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dis</span><span class="p">)[:</span><span class="n">k</span><span class="p">]]).</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1"># 随机分割训练集和测试集
+</span><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+    <span class="n">test_X</span><span class="p">,</span> <span class="n">test_Y</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.2</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)))</span>
+        <span class="n">test_X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="n">test_Y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Y</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">test_Y</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s">r'E:\人工智能训练营\人工智能\笔记\day2\dating.txt'</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">guiyihua</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1"># print(X)
+</span>    <span class="c1"># print(Y)
+</span>    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mi">48111</span><span class="p">,</span> <span class="mf">9.134528</span><span class="p">,</span> <span class="mf">0.728045</span><span class="p">]</span>  <span class="c1"># 3
+</span>    <span class="c1"># train_X, test_X, train_Y, test_Y = train_test_split(X, Y)
+</span>    <span class="c1"># count = 0
+</span>    <span class="c1"># for i, x in enumerate(test_X):
+</span>    <span class="c1">#     y = classify(train_X, x, train_Y, 3)
+</span>    <span class="c1">#     if y == test_Y[i]:
+</span>    <span class="c1">#         count += 1
+</span>    <span class="c1"># print(count / len(test_X))
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">classify</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+</code></pre></div></div>
+
+<h4 id="优化版knn的问题">优化版KNN的问题</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 代码可重用性还是很差，还是有冗余代码
+</code></pre></div></div>
+
+<h4 id="封装knn">封装KNN</h4>
+
+<div class="language-markdown highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">1.</span> 需要写几个类
+<span class="p">	1.</span> KNN
+<span class="p">	2.</span> Util
+<span class="p">2.</span> 每个类的属性
+<span class="p">	1.</span> KNN：k
+<span class="p">3.</span> 每个类的方法
+<span class="p">	1.</span> KNN：
+<span class="p">		1.</span> 分类器
+<span class="p">		2.</span> 评估方法
+<span class="p">	2.</span> Util：
+<span class="p">		1.</span> 加载数据
+<span class="p">		2.</span> 归一化
+<span class="p">		3.</span> 拆分数据集
+</code></pre></div></div>
+
+<h4 id="封装knn的实现">封装KNN的实现</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># !/usr/bin/python
+# -*- coding: utf-8 -*-
+# @Time    : 2020/2/21 10:27
+# @Author  : hbw
+# @File    : KNN算法.py
+# @Software: PyCharm
+# 1. 读取数据，分开特征矩阵和目标向量
+</span><span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+
+<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="c1"># 该方法必须让子类重写
+</span>    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="nb">ValueError</span><span class="p">(</span><span class="s">'classify方法必须重写！！！'</span><span class="p">)</span>
+
+    <span class="c1"># 该方法不能被覆盖
+</span>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_Y</span><span class="p">,</span> <span class="n">test_Y</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_X</span><span class="p">):</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">classify</span><span class="p">(</span><span class="n">train_X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">train_Y</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">y</span> <span class="o">==</span> <span class="n">test_Y</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">count</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">KNN</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
+
+    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="n">dis</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">xx</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+                <span class="nb">sum</span> <span class="o">+=</span> <span class="p">(</span><span class="n">xx</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">dis</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="nb">sum</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Counter</span><span class="p">([</span><span class="n">Y</span><span class="p">[</span><span class="n">dis</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">d</span><span class="p">)]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dis</span><span class="p">)[:</span><span class="bp">self</span><span class="p">.</span><span class="n">k</span><span class="p">]]).</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Util</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">'</span><span class="se">\t</span><span class="s">'</span><span class="p">):</span>  <span class="c1"># ,usrcols=[0,2]
+</span>        <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">r</span><span class="p">.</span><span class="n">readlines</span><span class="p">():</span>
+                <span class="n">datas</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="n">sep</span><span class="p">)</span>
+                <span class="n">X</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">d</span><span class="p">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">datas</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]])</span>
+                <span class="n">Y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">datas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">].</span><span class="n">strip</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span>
+
+    <span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+        <span class="n">test_X</span><span class="p">,</span> <span class="n">test_Y</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.2</span>
+        <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_X</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)))</span>
+            <span class="n">test_X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+            <span class="n">test_Y</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">Y</span><span class="p">.</span><span class="n">pop</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">test_Y</span>
+
+    <span class="k">def</span> <span class="nf">guiyihua</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="n">new_X</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>  <span class="c1"># 3
+</span>            <span class="n">col</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">]</span>
+            <span class="n">max_col</span><span class="p">,</span> <span class="n">min_col</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+            <span class="n">new_col</span> <span class="o">=</span> <span class="p">[(</span><span class="n">c</span> <span class="o">-</span> <span class="n">min_col</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">max_col</span> <span class="o">-</span> <span class="n">min_col</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+            <span class="n">new_X</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="n">new_X</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_X</span><span class="p">))]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">new_X</span><span class="p">[</span><span class="mi">0</span><span class="p">]))]</span>
+
+
+<span class="c1"># class KNN1(Base):
+#     def classify(self, X, x, Y):
+#         return '1'
+#
+#     def score(self, train_X, test_X, train_Y, test_Y):
+#         return 1
+#
+#
+# class KNN2(Base):
+#     def classify(self, X, x, Y):
+#         return '2'
+#
+#     def score(self, train_X, test_X, train_Y, test_Y):
+#         return 0
+</span>
+
+
+<span class="k">class</span> <span class="nc">KNN3</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">'3'</span>
+
+<span class="k">class</span> <span class="nc">KNN4</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_Y</span><span class="p">,</span> <span class="n">test_Y</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">'__main__'</span><span class="p">:</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="s">r'E:\人工智能训练营\人工智能\笔记\day2\dating.txt'</span>
+    <span class="n">util</span> <span class="o">=</span> <span class="n">Util</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">util</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">util</span><span class="p">.</span><span class="n">guiyihua</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">train_X</span><span class="p">,</span> <span class="n">test_X</span><span class="p">,</span> <span class="n">train_Y</span><span class="p">,</span> <span class="n">test_Y</span> <span class="o">=</span> <span class="n">util</span><span class="p">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="n">knn</span> <span class="o">=</span> <span class="n">KNN</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">knn4</span> <span class="o">=</span> <span class="n">KNN4</span><span class="p">()</span>
+    <span class="n">knn3</span> <span class="o">=</span> <span class="n">KNN3</span><span class="p">()</span>
+    <span class="c1"># print(main(knn4, filename))
+</span>    <span class="k">print</span><span class="p">(</span><span class="n">knn</span><span class="p">.</span><span class="n">classify</span><span class="p">(</span><span class="n">train_X</span><span class="p">,</span><span class="n">test_X</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">train_Y</span><span class="p">))</span>
+
+
+</code></pre></div></div>
+:ET
